@@ -4,9 +4,7 @@
 
 A data aggregation platform that combines various data sources to aid in the development of renewable energy. This project is specifically meant to assist local community leaders in making decisions without expensive siting and consultation.
 
-![C2C API Hub screenshot](./app_info/images/app-screenshot.png)
-
-* **Technology Stack**: This is a web app/api primarily written in nodejs. HTML/EJS are used for the front-end
+* **Technology Stack**: Backend written in ExpressJS. Front-end created using VueJS framework
 
 * **Status**: This project is in an incredibly preliminary phase. This repository is mostly for organization and internal presentation, **not for community use**
 
