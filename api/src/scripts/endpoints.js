@@ -7,16 +7,8 @@ function nasa_power_call(lat, lon, height, wind_surface, start_date, end_date) {
     start_date.slice(0, 4) + start_date.slice(5, 7) + start_date.slice(8, 10);
   var formatted_end_date =
     end_date.slice(0, 4) + end_date.slice(5, 7) + end_date.slice(8, 10);
-  if (height < 30) {
-    // Sets keyword based on where the height is closest to
-    var param = "WD50M";
-  } else if (height < 6) {
-    var param = "WD10M";
-  } else {
-    var param = "WD2M";
-  }
   var nasa = axios.get(
-    `https://power.larc.nasa.gov/api/temporal/hourly/point?community=RE&parameters=${param},WSC&latitude=${lat}&longitude=${lon}&start=${formatted_start_date}&end=${formatted_end_date}&format=JSON&wind-elevation=${height}&wind-surface=${wind_surface}`
+    `https://power.larc.nasa.gov/api/temporal/hourly/point?community=RE&parameters=WD10M,WD50M,WSC&latitude=${lat}&longitude=${lon}&start=${formatted_start_date}&end=${formatted_end_date}&format=JSON&wind-elevation=${height}&wind-surface=${wind_surface}`
   );
   return nasa;
 }

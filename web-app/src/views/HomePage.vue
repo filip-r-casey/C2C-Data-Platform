@@ -1,11 +1,14 @@
 <template>
-    Hello
-    <router-view></router-view>
+  <router-view></router-view>
+  <SourceCarousel></SourceCarousel>
 </template>
 
 <script>
+import SourceCarousel from "@/components/SourceCarousel.vue";
 export default {
-    name: "HomePage",}
+  name: "HomePage",
+  components: { SourceCarousel },
+};
 </script>
 <style scoped>
 h3 {

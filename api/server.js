@@ -8,8 +8,11 @@ const exp = require("constants");
 const pgp = require("pg-promise")();
 const swaggerUI = require("swagger-ui-express");
 const YAML = require("yamljs");
-const swaggerDocument = YAML.load("./api/swagger/swagger.yaml");
-const { Parser } = require("json2csv");
+const port = 3080;
+console.log(__dirname);
+const swaggerDocument = YAML.load(
+  path.join(__dirname, "swagger", "swagger.yaml")
+);
 const {
   yearRange,
   spacedList,
@@ -17,7 +20,7 @@ const {
   isValidDate,
   parseAlaskaWindResponse,
   baselineTimeStep,
-} = require("./src/scripts/utilities");
+} = require(path.join(__dirname, "src", "scripts", "utilities"));
 const {
   nasa_power_call,
   nasa_power_response_parse,
@@ -31,7 +34,7 @@ const {
   nws_station_response_parse,
   nws_rejected_check,
   nws_success_response_parse,
-} = require("./src/scripts/endpoints");
+} = require(path.join(__dirname, "src", "scripts", "endpoints"));
 const { stat } = require("fs");
 
 const HOST = "0.0.0.0";
@@ -51,20 +54,18 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // parse application/json
 app.use(bodyParser.json());
-app.use(
-  "/static/scripts/",
-  express.static(path.join(__dirname, "/src/scripts"))
-);
-app.use("/static/styles/", express.static(path.join(__dirname, "/src/styles")));
-app.set("views", path.join(__dirname, "/src/views"));
-app.set("view engine", "ejs"); //setting view
-
-app.get("/", function (req, res) {
-  res.render("pages/index");
-});
+// app.use(
+//   "/static/scripts/",
+//   express.static(path.join(__dirname, "/src/scripts"))
+// );
 app.use("/api/docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
+app.use(express.static(process.cwd() + "/web-app/dist"));
 
 // API
+app.get("/", function (req, res) {
+  res.send(process.cwd() + "/web-app/dist/index.html");
+});
+
 app.all("/api", function (req, res) {
   // Parameters: None
   // Returns: JSON
@@ -94,6 +95,20 @@ app.all("/api/search", function (req, res) {
   var open_weather_bool = req[req_path].openWeather === "true";
   var time_step = req[req_path].timeStep;
   var format = req[req_path].format;
+  var vertical_interpolation = req[req_path].VerticalInterpolation;
+  var wsc_map = {
+    vegtype_1: 0.7,
+    vegtype_2: 0.75,
+    vegtype_3: 0.75,
+    vegtype_4: 0.75,
+    vegtype_5: 0.5,
+    vegtype_6: 0.3,
+    vegtype_7: 1,
+    vegtype_8: 0.5,
+    vegtype_9: 0.1,
+    vegtype_10: 0.5,
+  };
+  const surface_roughness = wsc_map[wind_surface];
   // NASA
   nasa_promise = nasa_power_call(
     lat,
@@ -122,7 +137,7 @@ app.all("/api/search", function (req, res) {
   );
 
   var nws = axios.get(
-    `http://0.0.0.0:3000/api/search/nws?Latitude=${lat}&Longitude=${lon}&start=${start_date}&end=${end_date}&HubHeight=${height}`
+    `http://0.0.0.0:3080/api/search/nws?Latitude=${lat}&Longitude=${lon}&start=${start_date}&end=${end_date}&HubHeight=${height}`
   );
 
   // //Alaska Energy Authority API
@@ -199,10 +214,23 @@ app.all("/api/search", function (req, res) {
           var open_weather_errors = open_weather_data.response;
           open_weather_data = null;
         } else {
-          open_weather_data = open_weather_data.response;
+          if (vertical_interpolation) {
+          } else {
+            open_weather_data = open_weather_data.response;
+          }
         }
       }
       if ("nws" in compatible_sources) {
+        var nasa_data_10 =
+          promise_responses[Object.keys(compatible_sources).indexOf("nasa")]
+            .value.data.parameters.WD10M;
+        var nasa_data_50 =
+          promise_responses[Object.keys(compatible_sources).indexOf("nasa")]
+            .value.data.parameters.WD50M;
+        for (timestamp in nasa_data_10) {
+          (nasa_data_10[timestamp] * (height / nasa_data_50)) ^
+            surface_roughness;
+        }
         var nws_idx = Object.keys(compatible_sources).indexOf("nws");
         if (promise_responses[nws_idx].status == "rejected") {
           var nws_err = promise_responses[nws_idx].reason.response.data.errors;
@@ -273,9 +301,7 @@ app.all("/api/search", function (req, res) {
           }
         }
         var master_data = [];
-        console.log(Object.values(nws_data["stations"])[0]["wind_speed"]);
         for (timestamp in nasa_data["wind_speed"]) {
-          console.log(timestamp);
           master_data.push([
             timestamp,
             nasa_data ? nasa_data["wind_speed"][timestamp] : -1,
@@ -765,8 +791,8 @@ app.all("/api/search/nws", function (req, res) {
 });
 
 if (process.env.NODE_ENV !== "test") {
-  const server = app.listen(3000, function () {
-    console.log("Server started on port 3000");
+  const server = app.listen(port, function () {
+    console.log(`Server started on port ${port}`);
   });
 }
 module.exports = app;
