@@ -94,7 +94,7 @@ app.all("/api/search", function (req, res) {
   var end_date = new Date(req[req_path].end).toISOString();
   var open_weather_bool = req[req_path].openWeather === "true";
   var time_step = req[req_path].timeStep;
-  var format = req[req_path].format;
+  var format = req[req_path].format ? req[req_path].format : "json";
   var vertical_interpolation = req[req_path].VerticalInterpolation;
   var wsc_map = {
     vegtype_1: 0.7,

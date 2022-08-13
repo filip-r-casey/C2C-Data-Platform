@@ -9,6 +9,6 @@ COPY --from=ui-build /usr/src/app/web-app/dist ./web-app/dist
 ADD api ./api
 RUN cd api && npm install
 
-EXPOSE 3080
+EXPOSE 8080
 
 CMD ["node", "./api/server.js"]
