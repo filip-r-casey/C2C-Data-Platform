@@ -6,7 +6,7 @@ A data aggregation platform that combines various data sources to aid in the dev
 
 * **Technology Stack**: Backend written in ExpressJS. Front-end created using VueJS framework
 
-* **Status**: This project is in an incredibly preliminary phase. This repository is mostly for organization and internal presentation, **not for community use**
+* **Status: Project currently has 5 wind energy resources implemented.
 
 * **Instances**: Demo is currently not hosted
 
@@ -28,15 +28,16 @@ git clone https://github.com/filip-r-casey/C2C-API-HUB
 ```
 
 ## Usage
+### Docker
 
 First ensure that docker is installed on your machine. Then open a terminal window in the project directory
 
 ```bash
-docker compose build
-docker compose up
+docker build -t c2c-data-platform-image
+docker run -d --name c2c-data-platform
 ```
 
-This will start the container that runs the web application. To access the app, navigate to [PORT 3000](http://0.0.0.0:3000/)
+This will start the container that runs the web application. To access the app, navigate to [PORT 3080](http://0.0.0.0:3080/)
 
 In order for the APIs to be accessed properly, many of them require developer keys. For privacy reasons, personal developer keys **should not** be included in this repository. Links to get your own API keys are here:
 
@@ -55,7 +56,11 @@ EMAIL="{EMAIL}"
 
 ## Testing
 
-Tests not currently included but will be added in the future
+Testing is done with the Jest framework, using supertest to make fake API calls. To run tests on your machine, simply run ```bash npm run start``` in the "api" directory. Otherwise, everytime that a push is made to a branch, the tests will be run automatically through GitHub Actions.
+
+## Documentation
+
+Since the project is not currently hosted, there is nowhere that documentation is easily accessible. Currently, the best way to get access to this, is to run the project on your machine, and access the "api/docs" endpoint. The documentation is done according to Open API standards (PKA Swagger).
 
 ## Known Issues
 
@@ -72,8 +77,8 @@ This app sources information from the following APIS:
 * [National Weather Service](https://www.weather.gov/documentation/services-web-api#/default/station_observation_list)
 * [NCEI](https://www.ncei.noaa.gov/support/access-data-service-api-user-documentation)
   
-A report on the types of information available from these sources and the assumptions that they make is in progress
+A report on the types of information available from these sources and the assumptions that they make can be found here: [Filip Casey SULI Paper](https://drive.google.com/file/d/10BlTYDYR5AO15iI6XRxVjnxyXnBcUEuk/view?usp=sharing). And a simplified comparison will be included in the website's user interface soon.
 
 ## Getting Help
 
-Currently, extensive documentation is not available. If your question is not answered here email: filip.r.casey@gmail.com
+If your question is not answered here email: filip.r.casey@gmail.com
